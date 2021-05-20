@@ -4,6 +4,10 @@ import numpy as np
 import pydeck as pdk
 import plotly.express as px
 
+# create dateparser to be safe
+from datetime import datetime
+dateparse = lambda x: datetime.strptime(x, '%m/%d/%Y %H:%M')
+
 # get absolute path and use it to create absolute path for csv data
 import os
 dirname = os.path.dirname(__file__)
@@ -12,22 +16,23 @@ DATA_URL = (
     os.path.join(dirname, 'Motor_Vehicle_Collisions_-_Crashes_shortened.csv')
 )
 
+# Create some title and text
 st.title("Motor Vehicle Collisions in New York City")
 st.markdown("This application is a Streamlit dashboard that can be used to analyze vehicle collisions in NYC.")
 
 # tell Streamlit to keep the data in a cache so that it does not have to rerun the whole code when something changes
 @st.cache(persist=True)
 def load_data(nrows):
-    data = pd.read_csv(DATA_URL, nrows = nrows, parse_dates=[['CRASH_DATE', 'CRASH_TIME']])
+    data = pd.read_csv(DATA_URL, nrows = nrows, parse_dates=[['CRASH_DATE', 'CRASH_TIME']], date_parser=dateparse)
     # we must not have NAs in lon, lat info when working with maps
     data.dropna(subset=['LATITUDE', 'LONGITUDE'], inplace = True)
     lowercase = lambda x: str(x).lower()
     data.rename(lowercase, axis='columns', inplace=True)
-    data.rename(columns={'crash_date_crash_time': 'date/time'}, inplace=True)
+    data.rename(columns={'crash_date_crash_time': 'date_time'}, inplace=True)
 
     return data
 
-data = load_data(100000)
+data = load_data(60000)
 original_data = data
 
 
@@ -42,7 +47,7 @@ st.header("How many collisions occur during a given time of day?")
 # hour = st.sidebar.slider("Hour to look at", 0, 23) # create the slider as a sidebar by adding .sidebar in front
 hour = st.slider("Hour to look at", 0, 23)
 # hour = st.selectbox("Hour to look at", range(0,24),1) # create a dropdown menu to select a value between 0 and 24 (step size of 1)
-data = data[data['date/time'].dt.hour == hour]
+data = data[data['date_time'].dt.hour == hour]
 
 
 st.markdown("Vehicle collisions between %i:00 and %i:00" % (hour, (hour+1) %24))
@@ -61,9 +66,9 @@ st.write(pdk.Deck(
     layers=[
         pdk.Layer(
             "HexagonLayer",
-            data = data[['date/time','latitude','longitude']],
+            data = data[['date_time','latitude','longitude']],
             get_position=['longitude','latitude'],
-            radius=100,
+            radius=90,
             extruded=True,
             pickable=True,
             elevation_scale=4,
@@ -76,11 +81,11 @@ st.write(pdk.Deck(
 st.subheader("Breaskdown by mintue between %i:00 and %i:00" % (hour, (hour+1) %24))
 
 filtered = data[
-    (data['date/time'].dt.hour >= hour) & (data['date/time'].dt.hour <= (hour+1))
+    (data['date_time'].dt.hour >= hour) & (data['date_time'].dt.hour <= (hour+1))
 ]
 
 # create a histogram for the selected hour
-hist = np.histogram(filtered['date/time'].dt.minute, bins=60, range=(0,60))[0]
+hist = np.histogram(filtered['date_time'].dt.minute, bins=60, range=(0,60))[0]
 
 # create a dataframe based on the hist information
 chart_data = pd.DataFrame({'minute': range(60), 'crashes':hist})
