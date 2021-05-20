@@ -71,6 +71,7 @@ st.write(pdk.Deck(
             radius=90,
             extruded=True,
             pickable=True,
+            tooltip={"text": "{on_street_name}"}, # setting pickable but not tooltip leads to freezing apparently with the current version
             elevation_scale=4,
             elevation_range=[0,1000],
         ),
