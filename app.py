@@ -4,12 +4,12 @@ import numpy as np
 import pydeck as pdk
 import plotly.express as px
 
-# get absolute path and use it to create absolute path for csv data 
+# get absolute path and use it to create absolute path for csv data
 import os
 dirname = os.path.dirname(__file__)
 
 DATA_URL = (
-    os.path.join(dirname, 'Motor_Vehicle_Collisions_-_Crashes.csv')
+    os.path.join(dirname, 'Motor_Vehicle_Collisions_-_Crashes_shortened.csv')
 )
 
 st.title("Motor Vehicle Collisions in New York City")
