@@ -44,6 +44,7 @@ edited_data = data
 # drop NAs
 edited_data.dropna(subset=['latitude', 'latitude'], inplace = True)
 edited_data.dropna(subset=['employment_start_date_converted','time_employed_converted'], inplace = True)
+edited_data['employment_start_date_converted'] = edited_data['employment_start_date_converted'].astype("datetime64")
 
 # calculate midpoint of all available data points for the map view
 midpoint = (np.average(edited_data['latitude']), np.average(edited_data['longitude']))
@@ -77,6 +78,12 @@ st.write(pdk.Deck(
         }
    }, # setting pickable but not tooltip leads to freezing apparently with the current version
 ))
+
+
+# Create histogram showing the number of oyatoi over time
+st.subheader("Number of Oyatoi hired in a given period")
+hist_values = np.histogram(edited_data['employment_start_date_converted'].dt.year, bins = 20)
+st.bar_chart(hist_values)
 
 
 # add a checkbox in order to not always show the raw data
