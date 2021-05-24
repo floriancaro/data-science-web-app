@@ -3,11 +3,6 @@ import boto3
 import sys
 import streamlit as st
 
-if sys.version_info[0] < 3:
-    from StringIO import StringIO # Python 2.x
-else:
-    from io import StringIO # Python 3.x
-
 # get your credentials from environment variables
 aws_id = st.secrets['AWS_KEY']
 aws_secret = st.secrets['AWS_KEY_SECRET']
