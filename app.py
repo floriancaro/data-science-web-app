@@ -82,7 +82,7 @@ st.write(pdk.Deck(
 
 # Create histogram showing the number of oyatoi over time
 st.subheader("Number of Oyatoi hired in a given period")
-hist_values = np.histogram(edited_data['employment_start_date_converted'].dt.year, bins = 20)
+hist_values = np.histogram(edited_data['employment_start_date_converted'].dt.year, bins = 20)[0]
 st.bar_chart(hist_values)
 
 
