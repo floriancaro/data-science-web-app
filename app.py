@@ -7,7 +7,7 @@ from io import StringIO
 
 # create dateparser to be safe
 from datetime import datetime
-dateparse = lambda x: datetime.strptime(x, '%m/%d/%Y %H:%M')
+dateparse = lambda x: datetime.strptime(x, '%Y-%m-%d')
 
 # get absolute path and use it to create absolute path for csv data
 import os
@@ -28,7 +28,7 @@ from aws_client import csv_string
 @st.cache(persist=True)
 def load_data(nrows = 50000):
     # read/parse the file retrieved from the S3 bucket
-    data = pd.read_csv(StringIO(csv_string))
+    data = pd.read_csv(StringIO(csv_string),parse_dates=[['employment_start_date_converted']], date_parser=dateparse)
     # data = pd.read_csv(DATA_URL, nrows = nrows, parse_dates=[['CRASH_DATE', 'CRASH_TIME']], date_parser=dateparse)
 
     # we must not have NAs in lon, lat info when working with maps
