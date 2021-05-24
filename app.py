@@ -50,7 +50,7 @@ st.write(pdk.Deck(
     initial_view_state={
         "latitude": midpoint[0],
         "longitude": midpoint[1],
-        "zoom": 5,
+        "zoom": 7,
         "pitch": 50,
     },
     layers=[
@@ -59,11 +59,11 @@ st.write(pdk.Deck(
             data = data,
             get_position=['longitude','latitude'],
             auto_highlight=True,
-            radius=200,
+            radius=750,
             extruded=True,
             pickable=True,
-            elevation_scale=50,
-            elevation_range=[0,3000],
+            elevation_scale=250,
+            elevation_range=[0,500],
         ),
     ],
     tooltip={
