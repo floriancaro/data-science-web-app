@@ -34,16 +34,16 @@ def load_data(nrows = 50000):
 
     # we must not have NAs in lon, lat info when working with maps
     lowercase = lambda x: str(x).lower()
-    data.dropna(subset=['latitude', 'latitude'], inplace = True)
     data.rename(lowercase, axis='columns', inplace=True)
-    # data.rename(columns={'crash_date_crash_time': 'date_time'}, inplace=True)
 
     return data
 
 data = load_data()
 original_data = data
 
-data.dropna(subset=['employment_start_date_converted'], inplace = True)
+# drop NAs
+data.dropna(subset=['latitude', 'latitude'], inplace = True)
+data.dropna(subset=['employment_start_date_converted','time_employed_converted'], inplace = True)
 
 # calculate midpoint of all available data points for the map view
 midpoint = (np.average(data['latitude']), np.average(data['longitude']))
