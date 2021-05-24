@@ -20,37 +20,26 @@ DATA_URL = (
 st.title("Motor Vehicle Collisions in New York City")
 st.markdown("This application is a Streamlit dashboard that can be used to analyze vehicle collisions in NYC.")
 
+# import prepared raw data from aws_client.py
+from aws_client import csv_string
+
 # tell Streamlit to keep the data in a cache so that it does not have to rerun the whole code when something changes
 @st.cache(persist=True)
-def load_data(nrows):
-    data = pd.read_csv(DATA_URL, nrows = nrows, parse_dates=[['CRASH_DATE', 'CRASH_TIME']], date_parser=dateparse)
+def load_data(nrows = 50000):
+    # read/parse the file retrieved from the S3 bucket
+    data = pd.read_csv(StringIO(csv_string))
+    # data = pd.read_csv(DATA_URL, nrows = nrows, parse_dates=[['CRASH_DATE', 'CRASH_TIME']], date_parser=dateparse)
+
     # we must not have NAs in lon, lat info when working with maps
-    data.dropna(subset=['LATITUDE', 'LONGITUDE'], inplace = True)
     lowercase = lambda x: str(x).lower()
+    data.dropna(subset=['latitude', 'latitude'], inplace = True)
     data.rename(lowercase, axis='columns', inplace=True)
-    data.rename(columns={'crash_date_crash_time': 'date_time'}, inplace=True)
+    # data.rename(columns={'crash_date_crash_time': 'date_time'}, inplace=True)
 
     return data
 
-data = load_data(60000)
+data = load_data()
 original_data = data
-
-
-st.header("Where are the most people injured in NYC?")
-
-injured_people = st.slider("Number of persons injured in vehicle collisions",0,19) # create an interactive slider
-
-st.map(data.query("injured_persons >= @injured_people")[['latitude','longitude']].dropna(how="any")) # query the longitude and latitude information for observations fulfilling the selected criteria and drop all rows where anything is na
-
-
-st.header("How many collisions occur during a given time of day?")
-# hour = st.sidebar.slider("Hour to look at", 0, 23) # create the slider as a sidebar by adding .sidebar in front
-hour = st.slider("Hour to look at", 0, 23)
-# hour = st.selectbox("Hour to look at", range(0,24),1) # create a dropdown menu to select a value between 0 and 24 (step size of 1)
-data = data[data['date_time'].dt.hour == hour]
-
-
-st.markdown("Vehicle collisions between %i:00 and %i:00" % (hour, (hour+1) %24))
 
 # calculate midpoint of all available data points for the map view
 midpoint = (np.average(data['latitude']), np.average(data['longitude']))
@@ -66,7 +55,7 @@ st.write(pdk.Deck(
     layers=[
         pdk.Layer(
             "HexagonLayer",
-            data = data[['date_time','latitude','longitude']],
+            data = data[['id','latitude','longitude']],
             get_position=['longitude','latitude'],
             radius=90,
             extruded=True,
@@ -83,38 +72,6 @@ st.write(pdk.Deck(
         }
    }, # setting pickable but not tooltip leads to freezing apparently with the current version
 ))
-
-
-st.subheader("Breaskdown by mintue between %i:00 and %i:00" % (hour, (hour+1) %24))
-
-filtered = data[
-    (data['date_time'].dt.hour >= hour) & (data['date_time'].dt.hour <= (hour+1))
-]
-
-# create a histogram for the selected hour
-hist = np.histogram(filtered['date_time'].dt.minute, bins=60, range=(0,60))[0]
-
-# create a dataframe based on the hist information
-chart_data = pd.DataFrame({'minute': range(60), 'crashes':hist})
-
-# create a figure using plotly.express
-fig = px.bar(chart_data, x = 'minute', y = 'crashes', hover_data=['minute','crashes'], height=400)
-
-# write the figure to the page
-st.write(fig)
-
-
-st.header("Top 5 dangerous streets by affected type")
-select = st.selectbox("Affected type of people", ["Pedestrians","Cyclists","Motorists"])
-
-if select == "Pedestrians":
-    st.write(original_data.query("injured_pedestrians >= 1")[["on_street_name","injured_pedestrians"]].sort_values(by=["injured_pedestrians"], ascending=False).dropna(how="any")[:5])
-elif select == "Cyclists":
-    st.write(original_data.query("injured_cyclists >= 1")[["on_street_name","injured_cyclists"]].sort_values(by=["injured_cyclists"], ascending=False).dropna(how="any")[:5])
-elif select == "Motorists":
-    st.write(original_data.query("injured_motorists >= 1")[["on_street_name","injured_motorists"]].sort_values(by=["injured_motorists"], ascending=False).dropna(how="any")[:5])
-
-
 
 
 # add a checkbox in order to not always show the raw data
