@@ -43,6 +43,8 @@ def load_data(nrows = 50000):
 data = load_data()
 original_data = data
 
+data.dropna(subset=['employment_start_date_converted'], inplace = True)
+
 # calculate midpoint of all available data points for the map view
 midpoint = (np.average(data['latitude']), np.average(data['longitude']))
 
