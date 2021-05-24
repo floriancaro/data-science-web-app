@@ -39,7 +39,7 @@ def load_data(nrows = 50000):
     return data
 
 data = load_data()
-edited_data = data
+edited_data = data.copy()
 
 # drop NAs
 edited_data.dropna(subset=['latitude', 'latitude'], inplace = True)
@@ -82,7 +82,9 @@ st.write(pdk.Deck(
 
 # Create histogram showing the number of oyatoi over time
 st.subheader("Number of Oyatoi hired in a given period")
-hist_values = np.histogram(edited_data['employment_start_date_converted'].dt.year, bins = 20)[0]
+hist_values = np.histogram(edited_data['employment_start_date_converted'].dt.year, bins = 20, range = (1867,1912))
+hist_values = pd.DataFrame(hist_values).T
+hist_values = hist_values.rename(columns={0:'Hired_Foreigners', 1:'index'}).set_index('index')
 st.bar_chart(hist_values)
 
 
