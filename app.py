@@ -39,14 +39,14 @@ def load_data(nrows = 50000):
     return data
 
 data = load_data()
-original_data = data
+edited_data = data
 
 # drop NAs
-data.dropna(subset=['latitude', 'latitude'], inplace = True)
-data.dropna(subset=['employment_start_date_converted','time_employed_converted'], inplace = True)
+edited_data.dropna(subset=['latitude', 'latitude'], inplace = True)
+edited_data.dropna(subset=['employment_start_date_converted','time_employed_converted'], inplace = True)
 
 # calculate midpoint of all available data points for the map view
-midpoint = (np.average(data['latitude']), np.average(data['longitude']))
+midpoint = (np.average(edited_data['latitude']), np.average(edited_data['longitude']))
 
 st.write(pdk.Deck(
     map_style="mapbox://styles/mapbox/light-v9",
@@ -59,13 +59,13 @@ st.write(pdk.Deck(
     layers=[
         pdk.Layer(
             "HexagonLayer",
-            data = data,
+            data = edited_data,
             get_position=['longitude','latitude'],
             auto_highlight=True,
-            radius=750,
+            radius=1000,
             extruded=True,
             pickable=True,
-            elevation_scale=250,
+            elevation_scale=350,
             elevation_range=[0,500],
         ),
     ],
