@@ -28,8 +28,9 @@ from aws_client import csv_string
 @st.cache(persist=True)
 def load_data(nrows = 50000):
     # read/parse the file retrieved from the S3 bucket
-    data = pd.read_csv(StringIO(csv_string),parse_dates=[['employment_start_date_converted']], date_parser=dateparse)
-    # data = pd.read_csv(DATA_URL, nrows = nrows, parse_dates=[['CRASH_DATE', 'CRASH_TIME']], date_parser=dateparse)
+    # data = pd.read_csv(StringIO(csv_string), parse_dates=[['employment_start_date_converted']], date_parser=dateparse)
+    data = pd.read_csv(StringIO(csv_string))
+    data['employment_start_date_converted'] = pd.to_datetime(data['employment_start_date_converted'], errors='coerce')
 
     # we must not have NAs in lon, lat info when working with maps
     lowercase = lambda x: str(x).lower()
