@@ -56,13 +56,14 @@ st.write(pdk.Deck(
     layers=[
         pdk.Layer(
             "HexagonLayer",
-            data = data[['latitude','longitude']],
+            data = data,
             get_position=['longitude','latitude'],
+            auto_highlight=True,    
             radius=90,
             extruded=True,
             pickable=True,
-            elevation_scale=4,
-            elevation_range=[0,1000],
+            elevation_scale=50,
+            elevation_range=[0,2000],
         ),
     ],
     tooltip={
