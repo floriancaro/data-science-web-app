@@ -8,9 +8,9 @@ else:
     from io import StringIO # Python 3.x
 
 # get your credentials from environment variables
-aws_id = os.environ['AWS_KEY']
-aws_secret = os.environ['AWS_KEY_SECRET']
-aws_region = os.environ['AWS_REGION']
+aws_id = st.secrets['AWS_KEY']
+aws_secret = st.secrets['AWS_KEY_SECRET']
+aws_region = st.secrets['AWS_REGION']
 
 client = boto3.client('s3', aws_access_key_id=aws_id,
         aws_secret_access_key=aws_secret, region_name=aws_region)

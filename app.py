@@ -12,13 +12,13 @@ dateparse = lambda x: datetime.strptime(x, '%m/%d/%Y %H:%M')
 import os
 dirname = os.path.dirname(__file__)
 
-DATA_URL = (
-    os.path.join(dirname, 'Motor_Vehicle_Collisions_-_Crashes_shortened.csv')
-)
+# DATA_URL = (
+#     os.path.join(dirname, 'Motor_Vehicle_Collisions_-_Crashes_shortened.csv')
+# )
 
 # Create some title and text
-st.title("Motor Vehicle Collisions in New York City")
-st.markdown("This application is a Streamlit dashboard that can be used to analyze vehicle collisions in NYC.")
+st.title("Hired Foreigners in Meiji Japan")
+st.markdown("This application is a Streamlit dashboard that can be used to analyze the presence of hired foreigners in Japan during the Meiji era (1868-1912).")
 
 # import prepared raw data from aws_client.py
 from aws_client import csv_string
