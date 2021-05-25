@@ -81,11 +81,41 @@ st.write(pdk.Deck(
 
 
 # Create histogram showing the number of oyatoi over time
-st.subheader("Number of Oyatoi hired in a given period")
+st.subheader("Number of Oyatoi Hired in a Given Period")
 hist_values = np.histogram(edited_data['employment_start_date_converted'].dt.year, bins = 20, range = (1867,1912))
 hist_values = pd.DataFrame(hist_values).T
-hist_values = hist_values.rename(columns={0:'Hired_Foreigners', 1:'index'}).set_index('index')
+hist_values = hist_values.rename(columns={0:'hired_foreigners', 1:'index'}).set_index('index')
 st.bar_chart(hist_values)
+
+
+
+# Create histogram showing the distribution of employment duration among hired foreigners
+st.subheader("Distribution of Employment Duration among Hired Foreigners")
+hist_values = np.histogram(edited_data['time_employed_converted'], bins = 12, range = (0,2000))
+hist_values = pd.DataFrame(hist_values).T
+hist_values = hist_values.rename(columns={0:'employment_duration', 1:'index'}).set_index('index')
+st.bar_chart(hist_values)
+
+# compute corresponding average and variance of wages
+average_employment_duration = np.average(data['time_employed_converted'])
+variance_employment_duration = np.variance(data['time_employed_converted'])
+st.markdown("Average employment duration: %" % (average_employment_duration))
+st.markdown("Variance: %" % (variance_employment_duration))
+
+
+
+# Create histogram showing the distribution of wages among hired foreigners
+st.subheader("Distribution of Wages among Hired Foreigners")
+hist_values = np.histogram(edited_data['wage_converted_into_yen'], bins = 20, range = (0,2000))
+hist_values = pd.DataFrame(hist_values).T
+hist_values = hist_values.rename(columns={0:'wage', 1:'index'}).set_index('index')
+st.bar_chart(hist_values)
+
+# compute corresponding average and variance of wages
+average_wage = np.average(data['wage_converted_into_yen'])
+variance_wage = np.variance(data['wage_converted_into_yen'])
+st.markdown("Average Wage: %" % (average_wage))
+st.markdown("Variance: %" % (variance_wage))
 
 
 # add a checkbox in order to not always show the raw data
