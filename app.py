@@ -98,7 +98,7 @@ st.bar_chart(hist_values)
 
 # compute corresponding average and variance of wages
 average_employment_duration = np.average(data['time_employed_converted'])
-variance_employment_duration = np.variance(data['time_employed_converted'])
+variance_employment_duration = np.var(data['time_employed_converted'])
 st.markdown("Average employment duration: %" % (average_employment_duration))
 st.markdown("Variance: %" % (variance_employment_duration))
 
@@ -113,7 +113,7 @@ st.bar_chart(hist_values)
 
 # compute corresponding average and variance of wages
 average_wage = np.average(data['wage_converted_into_yen'])
-variance_wage = np.variance(data['wage_converted_into_yen'])
+variance_wage = np.var(data['wage_converted_into_yen'])
 st.markdown("Average Wage: %" % (average_wage))
 st.markdown("Variance: %" % (variance_wage))
 
