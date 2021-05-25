@@ -44,6 +44,7 @@ edited_data = data.copy()
 # drop NAs
 edited_data.dropna(subset=['latitude', 'latitude'], inplace = True)
 edited_data.dropna(subset=['employment_start_date_converted','time_employed_converted'], inplace = True)
+edited_data.dropna(subset=['wage_converted_into_yen'], inplace = True)
 edited_data['employment_start_date_converted'] = edited_data['employment_start_date_converted'].astype("datetime64")
 
 # calculate midpoint of all available data points for the map view
@@ -60,7 +61,7 @@ st.write(pdk.Deck(
     layers=[
         pdk.Layer(
             "HexagonLayer",
-            data = edited_data[['employment_start_date_converted','latitude', 'latitude']],
+            data = edited_data,
             get_position=['longitude','latitude'],
             auto_highlight=True,
             radius=1000,
@@ -97,8 +98,8 @@ hist_values = hist_values.rename(columns={0:'employment_duration', 1:'index'}).s
 st.bar_chart(hist_values)
 
 # compute corresponding average and variance of wages
-average_employment_duration = np.average(data['time_employed_converted'])
-variance_employment_duration = np.var(data['time_employed_converted'])
+average_employment_duration = np.average(edited_data['time_employed_converted'])
+variance_employment_duration = np.var(edited_data['time_employed_converted'])
 st.markdown("Average employment duration: %" % (average_employment_duration))
 st.markdown("Variance: %" % (variance_employment_duration))
 
@@ -112,8 +113,8 @@ hist_values = hist_values.rename(columns={0:'wage', 1:'index'}).set_index('index
 st.bar_chart(hist_values)
 
 # compute corresponding average and variance of wages
-average_wage = np.average(data['wage_converted_into_yen'])
-variance_wage = np.var(data['wage_converted_into_yen'])
+average_wage = np.average(edited_data['wage_converted_into_yen'])
+variance_wage = np.var(edited_data['wage_converted_into_yen'])
 st.markdown("Average Wage: %" % (average_wage))
 st.markdown("Variance: %" % (variance_wage))
 
