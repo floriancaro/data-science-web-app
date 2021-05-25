@@ -60,7 +60,7 @@ st.write(pdk.Deck(
     layers=[
         pdk.Layer(
             "HexagonLayer",
-            data = edited_data[['latitude', 'latitude']],
+            data = edited_data[['employment_start_date_converted','latitude', 'latitude']],
             get_position=['longitude','latitude'],
             auto_highlight=True,
             radius=1000,
