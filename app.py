@@ -60,7 +60,7 @@ st.write(pdk.Deck(
     layers=[
         pdk.Layer(
             "HexagonLayer",
-            data = edited_data['latitude', 'latitude'],
+            data = edited_data[['latitude', 'latitude']],
             get_position=['longitude','latitude'],
             auto_highlight=True,
             radius=1000,
@@ -106,7 +106,7 @@ st.markdown("Variance: %" % (variance_employment_duration))
 
 # Create histogram showing the distribution of wages among hired foreigners
 st.subheader("Distribution of Wages among Hired Foreigners")
-hist_values = np.histogram(edited_data['wage_converted_into_yen'], bins = 20, range = (0,4500))
+hist_values = np.histogram(edited_data['wage_converted_into_yen'], bins = 20, range = (0,2000))
 hist_values = pd.DataFrame(hist_values).T
 hist_values = hist_values.rename(columns={0:'wage', 1:'index'}).set_index('index')
 st.bar_chart(hist_values)
