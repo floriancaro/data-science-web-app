@@ -42,13 +42,22 @@ data = load_data()
 edited_data = data.copy()
 
 # drop NAs
-edited_data.dropna(subset=['latitude', 'latitude'], inplace = True)
+edited_data.dropna(subset=['latitude', 'longitude'], inplace = True)
 edited_data.dropna(subset=['employment_start_date_converted','time_employed_converted'], inplace = True)
 edited_data.dropna(subset=['wage_converted_into_yen'], inplace = True)
 edited_data['employment_start_date_converted'] = edited_data['employment_start_date_converted'].astype("datetime64")
 
 # calculate midpoint of all available data points for the map view
 midpoint = (np.average(edited_data['latitude']), np.average(edited_data['longitude']))
+
+# create dataframe with logged frequency of entries for each city
+logged_data = edited_data[['latitude', 'longitude']].drop_duplicates()
+frequency = (edited_data[['latitude', 'longitude']].groupby(edited_data[['latitude', 'longitude']].columns.tolist()).size().reset_index().rename(columns={0:'records'})) # compute frequency of each location in the data
+for index, row in frequency.iterrows():
+    logged_data = frequency.loc[frequency.index.repeat(np.log(frequency.records + 1)**2)].reset_index(drop=True)
+
+logged_data = logged_data.reset_index()
+st.write(logged_data)
 
 st.write(pdk.Deck(
     map_style="mapbox://styles/mapbox/light-v9",
@@ -61,10 +70,11 @@ st.write(pdk.Deck(
     layers=[
         pdk.Layer(
             "HexagonLayer",
-            data = edited_data,
+            data = logged_data,
             get_position=['longitude','latitude'],
+            records=['records'],
             auto_highlight=True,
-            radius=1000,
+            radius=2500,
             extruded=True,
             pickable=True,
             elevation_scale=350,
