@@ -4,7 +4,7 @@ import numpy as np
 import pydeck as pdk
 # import plotly.express as px
 from io import StringIO
-import geopandas
+# import geopandas
 
 # create dateparser to be safe
 from datetime import datetime
@@ -44,6 +44,7 @@ data_load_state = st.text('Loading data...')
 
 # Load data
 data = load_data()
+# st.write(data)
 edited_data = data.copy()
 
 # Notify the reader that the data was successfully loaded.
@@ -59,7 +60,7 @@ edited_data['employment_start_date_converted'] = edited_data['employment_start_d
 midpoint = (np.average(edited_data['latitude']), np.average(edited_data['longitude']))
 
 # create dataframe with logged frequency of entries for each city
-frequency = (edited_data[['latitude', 'longitude', 'Region_eng']].groupby(edited_data[['latitude', 'longitude']].columns.tolist()).size().reset_index().rename(columns={0:'records'})) # compute frequency of each location in the data
+frequency = (edited_data[['latitude', 'longitude', 'region_eng']].groupby(edited_data[['latitude', 'longitude', 'region_eng']].columns.tolist()).size().reset_index().rename(columns={0:'records'})) # compute frequency of each location in the data
 
 logged_data = frequency
 logged_data['log_frequency'] = 0
@@ -70,7 +71,7 @@ max_records = np.max(logged_data.log_frequency)
 logged_data['log_frequency_max_percentage'] = logged_data['log_frequency']/max_records
 
 logged_data = logged_data.reset_index(drop=True)
-st.write(logged_data)
+# st.write(logged_data)
 # gdf = geopandas.GeoDataFrame(logged_data, geometry=geopandas.points_from_xy(logged_data.longitude, logged_data.latitude))
 # gdf.to_file("output.geo.json", driver='GeoJSON')
 
@@ -85,9 +86,9 @@ column_layer = pdk.Layer(
     "ColumnLayer",
     data = logged_data,
     get_position=["longitude", "latitude"],
-    get_elevation="log_frequency",
+    get_elevation="log_frequency+1",
     elevation_scale=3000,
-    elevation_range=[0,7500],
+    elevation_range=[2000,3000],
     radius=2000,
     get_fill_color=["log_frequency_max_percentage * 250 + 120", 100, 100, 220],
     pickable=True,
@@ -129,7 +130,7 @@ st.write(pdk.Deck(
         column_layer,
     ],
     tooltip={
-        "text": "{records} Hired Foreigners in {Region_eng}",
+        "text": "{records} Hired Foreigners in {region_eng}",
         "style": {
             "backgroundColor": "steelblue",
             "color": "white"
@@ -148,8 +149,8 @@ st.bar_chart(hist_values)
 
 
 # Create histogram showing the distribution of employment duration among hired foreigners
-st.subheader("Distribution of Employment Duration among Hired Foreigners")
-hist_values = np.histogram(np.log(edited_data['time_employed_converted']), bins = 10, range = (0,500))
+st.subheader("Distribution of Log Employment Duration (in Days) among Hired Foreigners")
+hist_values = np.histogram(np.log(edited_data['time_employed_converted']), bins = 10, range = (0,10))
 hist_values = pd.DataFrame(hist_values).T
 hist_values = hist_values.rename(columns={0:'employment_duration', 1:'index'}).set_index('index')
 st.bar_chart(hist_values)
@@ -163,8 +164,8 @@ st.markdown("Standard error: {:.2f}".format(np.sqrt(variance_employment_duration
 
 
 # Create histogram showing the distribution of wages among hired foreigners
-st.subheader("Distribution of Wages among Hired Foreigners")
-hist_values = np.histogram(np.log(edited_data['wage_converted_into_yen']), bins = 10, range = (0,500))
+st.subheader("Distribution of Log Wages among Hired Foreigners")
+hist_values = np.histogram(np.log(edited_data['wage_converted_into_yen']), bins = 10, range = (0,10))
 hist_values = pd.DataFrame(hist_values).T
 hist_values = hist_values.rename(columns={0:'wage', 1:'index'}).set_index('index')
 st.bar_chart(hist_values)
