@@ -59,7 +59,7 @@ edited_data['employment_start_date_converted'] = edited_data['employment_start_d
 midpoint = (np.average(edited_data['latitude']), np.average(edited_data['longitude']))
 
 # create dataframe with logged frequency of entries for each city
-frequency = (edited_data[['latitude', 'longitude']].groupby(edited_data[['latitude', 'longitude']].columns.tolist()).size().reset_index().rename(columns={0:'records'})) # compute frequency of each location in the data
+frequency = (edited_data[['latitude', 'longitude', 'Region_eng']].groupby(edited_data[['latitude', 'longitude']].columns.tolist()).size().reset_index().rename(columns={0:'records'})) # compute frequency of each location in the data
 
 logged_data = frequency
 logged_data['log_frequency'] = 0
@@ -157,8 +157,8 @@ st.bar_chart(hist_values)
 # compute corresponding average and variance of wages
 average_employment_duration = np.average(edited_data['time_employed_converted'])
 variance_employment_duration = np.var(edited_data['time_employed_converted'])
-st.markdown("Average employment duration: {} days".format(average_employment_duration))
-st.markdown("Standard error: {}".format(np.sqrt(variance_employment_duration)))
+st.markdown("Average employment duration: {:.0f} days".format(average_employment_duration))
+st.markdown("Standard error: {:.2f}".format(np.sqrt(variance_employment_duration)))
 
 
 
@@ -172,8 +172,8 @@ st.bar_chart(hist_values)
 # compute corresponding average and variance of wages
 average_wage = np.average(edited_data['wage_converted_into_yen'])
 variance_wage = np.var(edited_data['wage_converted_into_yen'])
-st.markdown("Average Wage: {} Yen".format(average_wage))
-st.markdown("Standard error: {}".format(np.sqrt(variance_wage)))
+st.markdown("Average Wage: {:.2f} Yen".format(average_wage))
+st.markdown("Standard error: {:.2f}".format(np.sqrt(variance_wage)))
 
 
 # add a checkbox in order to not always show the raw data
