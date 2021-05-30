@@ -129,7 +129,7 @@ st.write(pdk.Deck(
         column_layer,
     ],
     tooltip={
-        "text": "{records}",
+        "text": "{records} Hired Foreigners in {Region_eng}",
         "style": {
             "backgroundColor": "steelblue",
             "color": "white"
@@ -149,7 +149,7 @@ st.bar_chart(hist_values)
 
 # Create histogram showing the distribution of employment duration among hired foreigners
 st.subheader("Distribution of Employment Duration among Hired Foreigners")
-hist_values = np.histogram(edited_data['time_employed_converted'], bins = 15, range = (0,2000))
+hist_values = np.histogram(np.log(edited_data['time_employed_converted']), bins = 10, range = (0,500))
 hist_values = pd.DataFrame(hist_values).T
 hist_values = hist_values.rename(columns={0:'employment_duration', 1:'index'}).set_index('index')
 st.bar_chart(hist_values)
@@ -157,14 +157,14 @@ st.bar_chart(hist_values)
 # compute corresponding average and variance of wages
 average_employment_duration = np.average(edited_data['time_employed_converted'])
 variance_employment_duration = np.var(edited_data['time_employed_converted'])
-st.markdown("Average employment duration: {}".format(average_employment_duration))
+st.markdown("Average employment duration: {} days".format(average_employment_duration))
 st.markdown("Standard error: {}".format(np.sqrt(variance_employment_duration)))
 
 
 
 # Create histogram showing the distribution of wages among hired foreigners
 st.subheader("Distribution of Wages among Hired Foreigners")
-hist_values = np.histogram(edited_data['wage_converted_into_yen'], bins = 10, range = (0,2000))
+hist_values = np.histogram(np.log(edited_data['wage_converted_into_yen']), bins = 10, range = (0,500))
 hist_values = pd.DataFrame(hist_values).T
 hist_values = hist_values.rename(columns={0:'wage', 1:'index'}).set_index('index')
 st.bar_chart(hist_values)
@@ -172,7 +172,7 @@ st.bar_chart(hist_values)
 # compute corresponding average and variance of wages
 average_wage = np.average(edited_data['wage_converted_into_yen'])
 variance_wage = np.var(edited_data['wage_converted_into_yen'])
-st.markdown("Average Wage: {}".format(average_wage))
+st.markdown("Average Wage: {} Yen".format(average_wage))
 st.markdown("Standard error: {}".format(np.sqrt(variance_wage)))
 
 

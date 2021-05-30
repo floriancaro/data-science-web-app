@@ -133,3 +133,6 @@ Motor_Vehicle_Collisions_-_Crashes.csv
 
 # .txt
 AWS.txt
+
+# .json
+output.geo.json
