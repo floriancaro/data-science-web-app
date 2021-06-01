@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as components
 import pandas as pd
 import numpy as np
 import pydeck as pdk
@@ -14,9 +15,14 @@ dateparse = lambda x: datetime.strptime(x, '%Y-%m-%d')
 import os
 dirname = os.path.dirname(__file__)
 
-# DATA_URL = (
-#     os.path.join(dirname, 'Motor_Vehicle_Collisions_-_Crashes_shortened.csv')
-# )
+# In progress warning
+components.html(
+    """
+    <div>
+        <h1 style="color: white; text-align: center">--------------- WORK IN PROGRESS ---------------</h1>
+    </div>
+    """,
+)
 
 # Create some title and text
 st.title("Hired Foreigners in Meiji Japan")
@@ -181,3 +187,12 @@ st.markdown("Standard error: {:.2f}".format(np.sqrt(variance_wage)))
 if st.checkbox("Show Raw Data", False):
     st.subheader('Raw Data')
     st.write(data)
+
+# Footer
+components.html(
+    """
+    <div style="position: fixed; bottom: 0px;">
+        <p style="color:white; font-size:1em">Created by <a href="https://github.com/floriancaro">Florian Caro</a>.</p>
+    </div>
+    """,
+)
