@@ -192,7 +192,7 @@ if st.checkbox("Show Raw Data", False):
 components.html(
     """
     <div style="position: fixed; bottom: 0px;">
-        <p style="color:white; font-size:1em">Created by <a href="https://github.com/floriancaro">Florian Caro</a>.</p>
+        <p style="color:white; font-size:1em">Created by <a href="https://github.com/floriancaro/" target="_blank">Florian Caro</a>.</p>
     </div>
     """,
 )
