@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 import pydeck as pdk
 # import plotly.express as px
+import altair as alt
 from io import StringIO
 # import geopandas
 
@@ -77,7 +78,6 @@ max_records = np.max(logged_data.log_frequency)
 logged_data['log_frequency_max_percentage'] = logged_data['log_frequency']/max_records
 
 logged_data = logged_data.reset_index(drop=True)
-# st.write(logged_data)
 # gdf = geopandas.GeoDataFrame(logged_data, geometry=geopandas.points_from_xy(logged_data.longitude, logged_data.latitude))
 # gdf.to_file("output.geo.json", driver='GeoJSON')
 
@@ -100,24 +100,6 @@ column_layer = pdk.Layer(
     pickable=True,
     auto_highlight=True,
 )
-
-# DATA_PATH = os.path.join(os.getcwd(),"output.geo.json")
-# st.write(gdf)
-#
-# geojson = pdk.Layer(
-#     "GeoJsonLayer",
-#     data = gdf,
-#     opacity=0.8,
-#     stroked=False,
-#     filled=True,
-#     extruded=True,
-#     wireframe=True,
-#     pickable=True,
-#     auto_highlight=True,
-#     get_elevation="log_frequency",
-#     get_fill_color="[255, 255, 140]",
-#     get_line_color=[255, 255, 255],
-# )
 
 # define view state
 view_state = pdk.ViewState(
@@ -145,40 +127,52 @@ st.write(pdk.Deck(
 ))
 
 
+# rename columns in edited_data
+edited_data = edited_data.rename(columns = {'time_employed_converted':'Employment Duration (Days)', 'wage_converted_into_yen':'Wage (Yen)'})
+
 # Create histogram showing the number of oyatoi over time
 st.subheader("Number of Oyatoi Hired in a Given Period")
-hist_values = np.histogram(edited_data['employment_start_date_converted'].dt.year, bins = 20, range = (1867,1912))
-hist_values = pd.DataFrame(hist_values).T
-hist_values = hist_values.rename(columns={0:'hired_foreigners', 1:'index'}).set_index('index')
-st.bar_chart(hist_values)
-
-
+# create start year variable
+edited_data['Employment Start (Year)'] = (edited_data['employment_start_date_converted'].dt.year)
+# edited_data['employment_start_year'] = edited_data['employment_start_year'].astype('int32')
+chart_wages = alt.Chart(edited_data[edited_data['Employment Start (Year)'] <= 1912]).mark_bar().encode(
+    alt.X("Employment Start (Year)", bin=alt.Bin(maxbins=30), axis = alt.Axis(title='Employment Start (Year)')),
+    y='count()',
+    tooltip=['Employment Start (Year)'],
+).interactive()
+st.altair_chart(chart_wages.properties(width=700, height=410))
 
 # Create histogram showing the distribution of employment duration among hired foreigners
-st.subheader("Distribution of Log Employment Duration (in Days) among Hired Foreigners")
-hist_values = np.histogram(np.log(edited_data['time_employed_converted']), bins = 10, range = (0,10))
-hist_values = pd.DataFrame(hist_values).T
-hist_values = hist_values.rename(columns={0:'employment_duration', 1:'index'}).set_index('index')
-st.bar_chart(hist_values)
+st.subheader("Distribution of Employment Duration (in Days) among Hired Foreigners")
+chart_wages = alt.Chart(edited_data[edited_data['Employment Duration (Days)'] > 0]).mark_bar().encode(
+    alt.X("Employment Duration (Days)", bin=alt.Bin(maxbins=30), axis = alt.Axis(title='Employment Duration (Days)')),
+    y='count()',
+    tooltip=['Employment Duration (Days)'],
+).interactive()
+st.altair_chart(chart_wages.properties(width=700, height=410))
 
 # compute corresponding average and variance of wages
-average_employment_duration = np.average(edited_data['time_employed_converted'])
-variance_employment_duration = np.var(edited_data['time_employed_converted'])
+average_employment_duration = np.average(edited_data.loc[edited_data['Employment Duration (Days)'] > 0,'Employment Duration (Days)'])
+variance_employment_duration = np.var(edited_data.loc[edited_data['Employment Duration (Days)'] > 0,'Employment Duration (Days)'])
 st.markdown("Average employment duration: {:.0f} days".format(average_employment_duration))
 st.markdown("Standard error: {:.2f}".format(np.sqrt(variance_employment_duration)))
 
 
 
 # Create histogram showing the distribution of wages among hired foreigners
-st.subheader("Distribution of Log Wages among Hired Foreigners")
-hist_values = np.histogram(np.log(edited_data['wage_converted_into_yen']), bins = 10, range = (0,10))
-hist_values = pd.DataFrame(hist_values).T
-hist_values = hist_values.rename(columns={0:'wage', 1:'index'}).set_index('index')
-st.bar_chart(hist_values)
+st.subheader("Distribution of Wages among Hired Foreigners")
+edited_data['Log Wage (Yen)'] = np.log(edited_data['Wage (Yen)'])
+# Altair chart looks better than st.bar_chart
+chart_wages = alt.Chart(edited_data[edited_data['Wage (Yen)'] > 0]).mark_bar().encode(
+    alt.X("Wage (Yen)", bin=alt.Bin(maxbins=30), axis = alt.Axis(title='Wage (Yen)')),
+    y='count()',
+    tooltip=['Wage (Yen)'],
+).interactive()
+st.altair_chart(chart_wages.properties(width=700, height=410))
 
 # compute corresponding average and variance of wages
-average_wage = np.average(edited_data['wage_converted_into_yen'])
-variance_wage = np.var(edited_data['wage_converted_into_yen'])
+average_wage = np.average(edited_data.loc[edited_data['Wage (Yen)'] > 0,'Wage (Yen)'])
+variance_wage = np.var(edited_data.loc[edited_data['Wage (Yen)'] > 0,'Wage (Yen)'])
 st.markdown("Average Wage: {:.2f} Yen".format(average_wage))
 st.markdown("Standard error: {:.2f}".format(np.sqrt(variance_wage)))
 
