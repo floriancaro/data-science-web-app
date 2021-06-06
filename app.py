@@ -144,7 +144,8 @@ st.altair_chart(chart_wages.properties(width=700, height=410))
 
 # Create histogram showing the distribution of employment duration among hired foreigners
 st.subheader("Distribution of Employment Duration (in Days) among Hired Foreigners")
-chart_wages = alt.Chart(edited_data[(edited_data['Employment Duration (Days)'] > 0) & (edited_data['Employment Duration (Days)'] < 5000)]).mark_bar().encode(
+upper_limit = st.slider(label="Select upper limit (in days)",min_value=100, max_value=5000, value=3000)
+chart_wages = alt.Chart(edited_data[(edited_data['Employment Duration (Days)'] > 0) & (edited_data['Employment Duration (Days)'] < upper_limit)]).mark_bar().encode(
     alt.X("Employment Duration (Days)", bin=alt.Bin(maxbins=30), axis = alt.Axis(title='Employment Duration (Days)')),
     y=alt.Y('count()', axis=alt.Axis(title='# Employment Spells')),
     tooltip=['count()'],
