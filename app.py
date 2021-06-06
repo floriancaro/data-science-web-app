@@ -137,23 +137,23 @@ edited_data['Employment Start (Year)'] = (edited_data['employment_start_date_con
 # edited_data['employment_start_year'] = edited_data['employment_start_year'].astype('int32')
 chart_wages = alt.Chart(edited_data[edited_data['Employment Start (Year)'] <= 1912]).mark_bar().encode(
     alt.X("Employment Start (Year)", bin=alt.Bin(maxbins=30), axis = alt.Axis(title='Employment Start (Year)')),
-    y='count()',
-    tooltip=['Employment Start (Year)'],
+    y=alt.Y('count()', axis=alt.Axis(title='# Employment Spells')),
+    tooltip=['count()'],
 ).interactive()
 st.altair_chart(chart_wages.properties(width=700, height=410))
 
 # Create histogram showing the distribution of employment duration among hired foreigners
 st.subheader("Distribution of Employment Duration (in Days) among Hired Foreigners")
-chart_wages = alt.Chart(edited_data[edited_data['Employment Duration (Days)'] > 0]).mark_bar().encode(
+chart_wages = alt.Chart(edited_data[(edited_data['Employment Duration (Days)'] > 0) & (edited_data['Employment Duration (Days)'] < 5000)]).mark_bar().encode(
     alt.X("Employment Duration (Days)", bin=alt.Bin(maxbins=30), axis = alt.Axis(title='Employment Duration (Days)')),
-    y='count()',
-    tooltip=['Employment Duration (Days)'],
+    y=alt.Y('count()', axis=alt.Axis(title='# Employment Spells')),
+    tooltip=['count()'],
 ).interactive()
 st.altair_chart(chart_wages.properties(width=700, height=410))
 
 # compute corresponding average and variance of wages
-average_employment_duration = np.average(edited_data.loc[edited_data['Employment Duration (Days)'] > 0,'Employment Duration (Days)'])
-variance_employment_duration = np.var(edited_data.loc[edited_data['Employment Duration (Days)'] > 0,'Employment Duration (Days)'])
+average_employment_duration = np.average(edited_data.loc[(edited_data['Employment Duration (Days)'] > 0) & (edited_data['Employment Duration (Days)'] < 5000),'Employment Duration (Days)'])
+variance_employment_duration = np.var(edited_data.loc[(edited_data['Employment Duration (Days)'] > 0) & (edited_data['Employment Duration (Days)'] < 5000),'Employment Duration (Days)'])
 st.markdown("Average employment duration: {:.0f} days".format(average_employment_duration))
 st.markdown("Standard error: {:.2f}".format(np.sqrt(variance_employment_duration)))
 
@@ -165,8 +165,8 @@ edited_data['Log Wage (Yen)'] = np.log(edited_data['Wage (Yen)'])
 # Altair chart looks better than st.bar_chart
 chart_wages = alt.Chart(edited_data[edited_data['Wage (Yen)'] > 0]).mark_bar().encode(
     alt.X("Wage (Yen)", bin=alt.Bin(maxbins=30), axis = alt.Axis(title='Wage (Yen)')),
-    y='count()',
-    tooltip=['Wage (Yen)'],
+    y=alt.Y('count()', axis=alt.Axis(title='# Employment Spells')),
+    tooltip=['count()'],
 ).interactive()
 st.altair_chart(chart_wages.properties(width=700, height=410))
 
