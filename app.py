@@ -132,7 +132,6 @@ st.write(pdk.Deck(
 
 # reset data (include duplicates by 'id' again)
 edited_data = data.copy()
-
 # rename columns in edited_data
 edited_data = edited_data.rename(columns = {'time_employed_converted':'Employment Duration (Days)', 'wage_converted_into_yen':'Wage (Yen)'})
 
@@ -165,6 +164,9 @@ st.altair_chart(chart_nationalities.properties(width=700, height=410))
 
 # reset data (include duplicates by 'id' again)
 edited_data = data.copy()
+# rename columns in edited_data
+edited_data = edited_data.rename(columns = {'time_employed_converted':'Employment Duration (Days)', 'wage_converted_into_yen':'Wage (Yen)'})
+
 
 # Create histogram showing the distribution of employment duration among hired foreigners
 st.subheader("Distribution of Employment Duration (in Days) among Hired Foreigners")
