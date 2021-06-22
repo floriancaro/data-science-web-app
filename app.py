@@ -57,10 +57,13 @@ edited_data = data.copy()
 # Notify the reader that the data was successfully loaded.
 data_load_state.text("Loading data ... Done!") # (using st.cache)
 
-# drop NAs
+# drop duplicates for the map of unqiue Oyatoi
+edited_data.drop_duplicates(subset=['id'], inplace=True)
+
+# drop observations with NAs in coordinate information
 edited_data.dropna(subset=['latitude', 'longitude'], inplace = True)
-edited_data.dropna(subset=['employment_start_date_converted','time_employed_converted'], inplace = True)
-edited_data.dropna(subset=['wage_converted_into_yen'], inplace = True)
+# edited_data.dropna(subset=['employment_start_date_converted','time_employed_converted'], inplace = True)
+# edited_data.dropna(subset=['wage_converted_into_yen'], inplace = True)
 edited_data['employment_start_date_converted'] = edited_data['employment_start_date_converted'].astype("datetime64")
 
 # calculate midpoint of all available data points for the map view
@@ -93,7 +96,7 @@ column_layer = pdk.Layer(
     data = logged_data,
     get_position=["longitude", "latitude"],
     get_elevation="log_frequency+1",
-    elevation_scale=3000,
+    elevation_scale=5000,
     elevation_range=[2000,3000],
     radius=2000,
     get_fill_color=["log_frequency_max_percentage * 250 + 120", 100, 100, 220],
@@ -105,7 +108,7 @@ column_layer = pdk.Layer(
 view_state = pdk.ViewState(
     latitude= midpoint[0],
     longitude= midpoint[1],
-    zoom= 6,
+    zoom= 5,
     pitch= 45,
     min_zoom=4.5,
     max_zoom=7,
@@ -127,6 +130,9 @@ st.write(pdk.Deck(
 ))
 
 
+# reset data (include duplicates by 'id' again)
+edited_data = data.copy()
+
 # rename columns in edited_data
 edited_data = edited_data.rename(columns = {'time_employed_converted':'Employment Duration (Days)', 'wage_converted_into_yen':'Wage (Yen)'})
 
@@ -142,9 +148,12 @@ chart_wages = alt.Chart(edited_data[edited_data['Employment Start (Year)'] <= 19
 ).interactive()
 st.altair_chart(chart_wages.properties(width=700, height=410))
 
-# distribution of nationalities among oyatoi
-# edited_data
-nationalities = edited_data[['england','usa','france','germany',"china",'austria','netherlands','russia','sweden','denmark']].sum().reset_index()
+
+# Distribution of nationalities among oyatoi
+# drop duplicates for the map of unqiue Oyatoi
+edited_data.drop_duplicates(subset=['id'], inplace=True)
+
+nationalities = edited_data[['england','usa','france','germany','norway','finland','italy','china','austria','netherlands','russia','sweden','denmark']].sum().reset_index()
 nationalities = nationalities.rename(columns={0:'count'}).sort_values('count')
 chart_nationalities = alt.Chart(nationalities).mark_bar().encode(
     alt.X("count", axis = alt.Axis(title='Nationality')),
@@ -152,6 +161,10 @@ chart_nationalities = alt.Chart(nationalities).mark_bar().encode(
     tooltip=["count"],
 )
 st.altair_chart(chart_nationalities.properties(width=700, height=410))
+
+
+# reset data (include duplicates by 'id' again)
+edited_data = data.copy()
 
 # Create histogram showing the distribution of employment duration among hired foreigners
 st.subheader("Distribution of Employment Duration (in Days) among Hired Foreigners")
@@ -174,8 +187,8 @@ st.markdown("Standard error: {:.2f}".format(np.sqrt(variance_employment_duration
 st.subheader("Distribution of Wages among Hired Foreigners")
 edited_data['Log Wage (Yen)'] = np.log(edited_data['Wage (Yen)'])
 # Altair chart looks better than st.bar_chart
-chart_wages = alt.Chart(edited_data[edited_data['Wage (Yen)'] > 0]).mark_bar().encode(
-    alt.X("Wage (Yen)", bin=alt.Bin(maxbins=30), axis = alt.Axis(title='Wage (Yen)')),
+chart_wages = alt.Chart(edited_data[(edited_data['Wage (Yen)'] > 0) & (edited_data['Wage (Yen)'] < 2500)]).mark_bar().encode(
+    alt.X("Wage (Yen)", bin=alt.Bin(maxbins=25), axis = alt.Axis(title='Wage (Yen)')),
     y=alt.Y('count()', axis=alt.Axis(title='# Employment Spells')),
     tooltip=['count()'],
 ).interactive()
