@@ -142,6 +142,17 @@ chart_wages = alt.Chart(edited_data[edited_data['Employment Start (Year)'] <= 19
 ).interactive()
 st.altair_chart(chart_wages.properties(width=700, height=410))
 
+# distribution of nationalities among oyatoi
+# edited_data
+nationalities = edited_data[['england','usa','france','germany',"china",'austria','netherlands','russia','sweden','denmark']].sum().reset_index()
+nationalities = nationalities.rename(columns={0:'count'}).sort_values('count')
+chart_nationalities = alt.Chart(nationalities).mark_bar().encode(
+    alt.X("count", axis = alt.Axis(title='Nationality')),
+    y=alt.Y("index", axis=alt.Axis(title='# Employment Spells'), sort='-x'),
+    tooltip=["count"],
+)
+st.altair_chart(chart_nationalities.properties(width=700, height=410))
+
 # Create histogram showing the distribution of employment duration among hired foreigners
 st.subheader("Distribution of Employment Duration (in Days) among Hired Foreigners")
 upper_limit = st.slider(label="Select upper limit (in days)",min_value=100, max_value=5000, value=3000)
@@ -157,7 +168,6 @@ average_employment_duration = np.average(edited_data.loc[(edited_data['Employmen
 variance_employment_duration = np.var(edited_data.loc[(edited_data['Employment Duration (Days)'] > 0) & (edited_data['Employment Duration (Days)'] < 5000),'Employment Duration (Days)'])
 st.markdown("Average employment duration: {:.0f} days".format(average_employment_duration))
 st.markdown("Standard error: {:.2f}".format(np.sqrt(variance_employment_duration)))
-
 
 
 # Create histogram showing the distribution of wages among hired foreigners
