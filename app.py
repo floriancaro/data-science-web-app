@@ -58,7 +58,7 @@ edited_data = data.copy()
 data_load_state.text("Loading data ... Done!") # (using st.cache)
 
 # drop duplicates for the map of unqiue Oyatoi
-edited_data.drop_duplicates(subset=['id','Region_eng'], inplace=True)
+edited_data.drop_duplicates(subset=['id','region_eng'], inplace=True)
 
 # drop observations with NAs in coordinate information
 edited_data.dropna(subset=['latitude', 'longitude'], inplace = True)
@@ -114,6 +114,7 @@ view_state = pdk.ViewState(
     max_zoom=7,
 )
 
+st.subheader("Distribution of Oyatoi across Japan")
 st.write(pdk.Deck(
     map_style="mapbox://styles/mapbox/light-v9",
     initial_view_state=view_state,
@@ -128,6 +129,7 @@ st.write(pdk.Deck(
         }
    }, # setting pickable but not tooltip leads to freezing apparently with the current version
 ))
+st.markdown("(Some individuals worked in different locations at different times and are hence counted multiple times.)")
 
 
 # reset data (include duplicates by 'id' again)
