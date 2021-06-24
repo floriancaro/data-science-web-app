@@ -134,6 +134,7 @@ st.write(pdk.Deck(
 edited_data = data.copy()
 # rename columns in edited_data
 edited_data = edited_data.rename(columns = {'time_employed_converted':'Employment Duration (Days)', 'wage_converted_into_yen':'Wage (Yen)'})
+edited_data.dropna(subset=['employment_start_date_converted'], inplace = True)
 
 # Create histogram showing the number of oyatoi over time
 st.subheader("Number of Oyatoi Hired in a Given Period")
@@ -148,8 +149,11 @@ chart_wages = alt.Chart(edited_data[edited_data['Employment Start (Year)'] <= 19
 st.altair_chart(chart_wages.properties(width=700, height=410))
 
 
-# Distribution of nationalities among oyatoi
-# drop duplicates for the map of unqiue Oyatoi
+# Distribution of nationalities among oyatoi -----------------------------
+# reset data
+edited_data = data.copy()
+
+# keep only observations per unique foreign employee
 edited_data.drop_duplicates(subset=['id'], inplace=True)
 
 nationalities = edited_data[['england','usa','france','germany','norway','finland','italy','china','austria','netherlands','russia','sweden','denmark']].sum().reset_index()
@@ -162,11 +166,13 @@ chart_nationalities = alt.Chart(nationalities).mark_bar().encode(
 st.altair_chart(chart_nationalities.properties(width=700, height=410))
 
 
+# Distribution of Employment Duration among oyatoi -----------------------------
 # reset data (include duplicates by 'id' again)
 edited_data = data.copy()
 # rename columns in edited_data
 edited_data = edited_data.rename(columns = {'time_employed_converted':'Employment Duration (Days)', 'wage_converted_into_yen':'Wage (Yen)'})
-
+# drop obserations with NAs for employment duration
+edited_data.dropna(subset=['Employment Duration (Days)'], inplace = True)
 
 # Create histogram showing the distribution of employment duration among hired foreigners
 st.subheader("Distribution of Employment Duration (in Days) among Hired Foreigners")
@@ -184,6 +190,14 @@ variance_employment_duration = np.var(edited_data.loc[(edited_data['Employment D
 st.markdown("Average employment duration: {:.0f} days".format(average_employment_duration))
 st.markdown("Standard error: {:.2f}".format(np.sqrt(variance_employment_duration)))
 
+
+# Distribution of Wages among oyatoi --------------------------
+# reset data (include duplicates by 'id' again)
+edited_data = data.copy()
+# rename columns in edited_data
+edited_data = edited_data.rename(columns = {'time_employed_converted':'Employment Duration (Days)', 'wage_converted_into_yen':'Wage (Yen)'})
+# drop obserations with NAs for employment duration
+edited_data.dropna(subset=['Wage (Yen)'], inplace = True)
 
 # Create histogram showing the distribution of wages among hired foreigners
 st.subheader("Distribution of Wages among Hired Foreigners")
@@ -203,6 +217,9 @@ st.markdown("Average Wage: {:.2f} Yen".format(average_wage))
 st.markdown("Standard error: {:.2f}".format(np.sqrt(variance_wage)))
 
 
+# Raw Data --------------------------------------------------
+# reset data (include duplicates by 'id' again)
+edited_data = data.copy()
 # add a checkbox in order to not always show the raw data
 if st.checkbox("Show Raw Data", False):
     st.subheader('Raw Data')
