@@ -58,7 +58,7 @@ edited_data = data.copy()
 data_load_state.text("Loading data ... Done!") # (using st.cache)
 
 # drop duplicates for the map of unqiue Oyatoi
-edited_data.drop_duplicates(subset=['id'], inplace=True)
+edited_data.drop_duplicates(subset=['id','Region_eng'], inplace=True)
 
 # drop observations with NAs in coordinate information
 edited_data.dropna(subset=['latitude', 'longitude'], inplace = True)
