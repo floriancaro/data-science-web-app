@@ -3,6 +3,7 @@ import streamlit.components.v1 as components
 import pandas as pd
 import numpy as np
 import pydeck as pdk
+import time
 # import plotly.express as px
 import altair as alt
 from io import StringIO
@@ -27,7 +28,9 @@ components.html(
 
 # Create some title and text
 st.title("Hired Foreigners in Meiji Japan")
-st.markdown("This application is a Streamlit dashboard that can be used to analyze the presence of hired foreigners in Japan during the Meiji era (1868-1912).")
+st.markdown("""This application is a Streamlit dashboard that can be used to analyze the presence of hired foreigners in Japan during the Meiji era (1868-1912).
+
+The analysis is based on data from the 『資料御雇外国人』 by the Centre for East Asian Cultural Studies for UNESCO.""")
 
 # import prepared raw data from aws_client.py
 from aws_client import csv_string
@@ -129,13 +132,22 @@ st.write(pdk.Deck(
         }
    }, # setting pickable but not tooltip leads to freezing apparently with the current version
 ))
-st.markdown("(Some individuals worked in different locations at different times and are hence counted multiple times.)")
+st.markdown("""
+<style>
+.note-font {
+    font-size:13px;
+}
+</style>
+""", unsafe_allow_html=True)
+st.markdown('<p class="note-font">(Some individuals worked in different locations at different times and are hence counted multiple times.)</p>', unsafe_allow_html=True)
 
+# enter some blank space
+st.write("#")
 
 # reset data (include duplicates by 'id' again)
 edited_data = data.copy()
 # rename columns in edited_data
-edited_data = edited_data.rename(columns = {'time_employed_converted':'Employment Duration (Days)', 'wage_converted_into_yen':'Wage (Yen)'})
+edited_data = edited_data.rename(columns = {'time_employed_converted':'Employment Duration (Days)'})
 edited_data.dropna(subset=['employment_start_date_converted'], inplace = True)
 
 # Create histogram showing the number of oyatoi over time
@@ -150,8 +162,11 @@ chart_wages = alt.Chart(edited_data[edited_data['Employment Start (Year)'] <= 19
 ).interactive()
 st.altair_chart(chart_wages.properties(width=700, height=410))
 
+# enter some blank space
+st.write("#")
 
 # Distribution of nationalities among oyatoi -----------------------------
+st.subheader("Number of Oyatoi Hired by Nationality")
 # reset data
 edited_data = data.copy()
 
@@ -167,6 +182,8 @@ chart_nationalities = alt.Chart(nationalities).mark_bar().encode(
 )
 st.altair_chart(chart_nationalities.properties(width=700, height=410))
 
+# enter some blank space
+st.write("#")
 
 # Distribution of Employment Duration among oyatoi -----------------------------
 # reset data (include duplicates by 'id' again)
@@ -192,6 +209,8 @@ variance_employment_duration = np.var(edited_data.loc[(edited_data['Employment D
 st.markdown("Average employment duration: {:.0f} days".format(average_employment_duration))
 st.markdown("Standard error: {:.2f}".format(np.sqrt(variance_employment_duration)))
 
+# enter some blank space
+st.write("#")
 
 # Distribution of Wages among oyatoi --------------------------
 # reset data (include duplicates by 'id' again)
@@ -227,6 +246,9 @@ if st.checkbox("Show Raw Data", False):
     st.subheader('Raw Data')
     st.write(data)
 
+# enter some blank space
+st.write("#")
+
 # Footer
 components.html(
     """
@@ -235,3 +257,7 @@ components.html(
     </div>
     """,
 )
+
+# remove data loading text
+time.sleep(10)
+data_load_state.text("")
