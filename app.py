@@ -259,5 +259,9 @@ components.html(
 )
 
 # remove data loading text
+<<<<<<< HEAD
 time.sleep(10)
+=======
+time.sleep(5)
+>>>>>>> 22daac0a3d44277ab96db5408c9bd9beb922b63f
 data_load_state.text("")
