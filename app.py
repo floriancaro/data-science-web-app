@@ -173,7 +173,7 @@ edited_data = data.copy()
 # keep only observations per unique foreign employee
 edited_data.drop_duplicates(subset=['id'], inplace=True)
 
-nationalities = edited_data[['england','usa','france','germany','norway','finland','italy','china','austria','netherlands','russia','sweden','denmark']].sum().reset_index()
+nationalities = edited_data[['britain','usa','france','germany','norway','finland','italy','china','austria','netherlands','russia','sweden','denmark']].sum().reset_index()
 nationalities = nationalities.rename(columns={0:'count'}).sort_values('count')
 chart_nationalities = alt.Chart(nationalities).mark_bar().encode(
     alt.X("count", axis = alt.Axis(title='Nationality')),
