@@ -117,8 +117,7 @@ font-size:13px;
 }
 </style>
 """, unsafe_allow_html=True)
-st.markdown('<p class="note-font">(<i>Note:</i> Some individuals worked in multiple locations over the time of their stay in Japan.)</p>', unsafe_allow_html=True)
-
+st.markdown('<p class="note-font"><i>Notes:</i> <br> (1) The high number of foreigners recorded in Kochi is due to the Tosa samurai who hired a large number of foreigners after founding the Mitsubishi corporation in 1873. <br> (2) Some individuals worked in multiple locations over the time of their stay in Japan.</p>', unsafe_allow_html=True)
 
 # # (2) Distribution of oyatoi across years -----
 # # reset data (include duplicates by 'id' again)
