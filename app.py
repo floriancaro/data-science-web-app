@@ -6,6 +6,8 @@ import pydeck as pdk
 import time
 import altair as alt
 from io import StringIO
+import json
+import geopandas as gpd
 
 # create dateparser to be safe -----
 from datetime import datetime
@@ -15,14 +17,14 @@ dateparse = lambda x: datetime.strptime(x, '%Y-%m-%d')
 import os
 dirname = os.path.dirname(__file__)
 
-# In progress warning
-components.html(
-    """
-    <div>
-        <h1 style="color: white; text-align: center">--------------- WORK IN PROGRESS ---------------</h1>
-    </div>
-    """,
-)
+# # In progress warning
+# components.html(
+#     """
+#     <div>
+#         <h1 style="color: white; text-align: center">--------------- WORK IN PROGRESS ---------------</h1>
+#     </div>
+#     """,
+# )
 
 # Create some title and text
 st.title("Hired Foreigners in Meiji Japan")
@@ -62,98 +64,62 @@ edited_data = data.copy()
 data_load_state.text("Loading data ... Done!") # (using st.cache)
 
 
+# enter some blank space
+st.write("#")
+
+
 # (1) Map showing the regional distribution of oyatoi ------
+# import prepared raw data from aws_client.py
+from aws_client import json_content
+oyatoi_json = gpd.read_file(json_content)
+# st.write(oyatoi_json.head())
+
 # select industry from dropdown for which you want to see the regional distribution
 industry_selection = st.selectbox('Select an Industry:',
     ("Any","Agriculture","Fishery","Forestry","Mining","Manufacturing","Service","Infrastructure","Construction"))
 
 if industry_selection != "Any":
-    edited_data = edited_data[edited_data[industry_selection.lower()] == 1]
+    oyatoi_json['selection'] = oyatoi_json[industry_selection.lower()]
+    oyatoi_json['display'] = np.log(oyatoi_json[industry_selection.lower()] +1) ** 2.5
+else:
+    oyatoi_json['selection'] = oyatoi_json['nr_oyatoi']
+    oyatoi_json['display'] = np.log(oyatoi_json['nr_oyatoi'] +1) ** 2.5
 
-# drop duplicates for the map of unqiue Oyatoi
-edited_data.drop_duplicates(subset=['id','place_of_work'], inplace=True)
+INITIAL_VIEW_STATE = pdk.ViewState(latitude=35.554, longitude=135.73, zoom=4.5, max_zoom=7, pitch=40, bearing=0)
 
-# drop observations with NAs in coordinate information
-edited_data.dropna(subset=['latitude', 'longitude'], inplace = True)
-
-# convert employment date column to datetime
-edited_data['employment_start'] = edited_data['employment_start'].astype("datetime64")
-
-# # restrict data to observations fitting the industry_selection
-# selection = edited_data.copy()
-# if industry_selection != "Any":
-#     selection = edited_data[edited_data['industry'] == industry_selection]
-
-# calculate midpoint of all available data points for the map view
-midpoint = (np.average(edited_data['latitude']), np.average(edited_data['longitude']))
-
-# create dataframe with logged frequency of entries for each city
-frequency = (edited_data[['latitude', 'longitude', 'place_of_work']].groupby(edited_data[['latitude', 'longitude', 'place_of_work']].columns.tolist()).size().reset_index().rename(columns={0:'records'})) # compute frequency of each location in the data
-
-logged_data = frequency
-logged_data['log_frequency'] = 0
-for index, row in frequency.iterrows():
-    logged_data.loc[index,'log_frequency'] = np.log(row.records + 1)**2
-
-max_records = np.max(logged_data.log_frequency)
-logged_data['log_frequency_max_percentage'] = logged_data['log_frequency']/max_records
-logged_data = logged_data.reset_index(drop=True)
-
-# viewstate range - yet to implement
-LONGITUDE_RANGE = [midpoint[1]-10, midpoint[1]+10]
-LATITUDE_RANGE = [midpoint[0]-10, midpoint[0]+10]
-
-# define the columy layer with its properties
-column_layer = pdk.Layer(
-    "ColumnLayer",
-    data = logged_data,
-    get_position=["longitude", "latitude"],
-    get_elevation="log_frequency+1",
-    elevation_scale=5000,
-    elevation_range=[2000,3000],
-    radius=2000,
-    get_fill_color=["log_frequency_max_percentage * 250 + 120", 100, 100, 220],
-    pickable=True,
-    auto_highlight=True,
+geojson = pdk.Layer(
+    "GeoJsonLayer",
+    oyatoi_json,
+    opacity=0.8,
+    stroked=False,
+    filled=True,
+    extruded=True,
+    wireframe=True,
+    get_elevation="display * 400",
+    get_fill_color="[255, 255 - display/20 * 255, 255]",
+    pickable = True,
 )
 
-# define view state
-view_state = pdk.ViewState(
-    latitude= midpoint[0],
-    longitude= midpoint[1],
-    zoom= 5,
-    pitch= 45,
-    min_zoom=4.5,
-    max_zoom=7,
-)
-
-st.subheader("Distribution of Oyatoi across Japan")
-st.write(pdk.Deck(
-    map_style="mapbox://styles/mapbox/light-v9",
-    initial_view_state=view_state,
-    layers=[
-        column_layer,
-    ],
+r = pdk.Deck(map_style="mapbox://styles/mapbox/light-v9",
+    layers=[geojson],
+    initial_view_state=INITIAL_VIEW_STATE,
     tooltip={
-        "text": "{records} Hired Foreigners in {place_of_work}",
+        "text": "{selection} Hired Foreigners in {N03_006}",
         "style": {
             "backgroundColor": "steelblue",
             "color": "white"
         }
-   }, # setting pickable but not tooltip leads to freezing apparently with the current version
-))
+    },) # setting pickable but not tooltip leads to freezing apparently with the current version)
+st.write(r)
+
 st.markdown("""
 <style>
 .note-font {
-    font-size:13px;
+font-size:13px;
 }
 </style>
 """, unsafe_allow_html=True)
-st.markdown('<p class="note-font">(Some individuals worked in different locations at different times and are hence counted multiple times.)</p>', unsafe_allow_html=True)
-
-
-# enter some blank space
-st.write("#")
+st.markdown('<p class="note-font">(<i>Note:</i> Some individuals worked in multiple locations over the time of their stay in Japan.)</p>', unsafe_allow_html=True)
 
 
 # # (2) Distribution of oyatoi across years -----
@@ -180,25 +146,28 @@ st.write("#")
 # st.write("#")
 
 
-# # (3) Distribution of oyatoi across industries -----
-# st.subheader("Number of Oyatoi Hired by Industry")
-# # reset data
-# edited_data = data.copy()
-#
-# # keep only observations per unique foreign employee
-# edited_data.drop_duplicates(subset=['id'], inplace=True)
-#
-# industries = edited_data
-# chart_industries = alt.Chart(industries).mark_bar().encode(
-#     alt.X("count()", axis=alt.Axis(title='# Employment Spells')),
-#     y = alt.Y("industry", axis = alt.Axis(title='Industry'), sort='-x'),
-#     tooltip=["count()"],
-# )
-# st.altair_chart(chart_industries.properties(width=700, height=410))
-#
-#
-# # enter some blank space
-# st.write("#")
+# (3) Distribution of oyatoi across industries -----
+st.subheader("Number of Oyatoi Hired by Industry")
+# reset data
+edited_data = data.copy()
+
+# keep only observations per unique foreign employee
+edited_data.drop_duplicates(subset=['id'], inplace=True)
+
+industries = edited_data[["agriculture","fishery","forestry","mining","manufacturing","service","infrastructure","construction"]].sum().reset_index()
+industries = industries.rename(columns={0:'count'}).sort_values('count')
+industries['log_count'] = np.log(industries['count']+1)
+
+chart_industries = alt.Chart(industries).mark_bar().encode(
+    alt.X("count", axis=alt.Axis(title='# Employment Spells')),
+    y = alt.Y("index", axis = alt.Axis(title='Industry'), sort='-x'),
+    tooltip=["count"],
+)
+st.altair_chart(chart_industries.properties(width=700, height=410))
+
+
+# enter some blank space
+st.write("#")
 
 
 # (4) Distribution of nationalities among oyatoi -----
@@ -206,17 +175,18 @@ st.subheader("Number of Oyatoi Hired by Nationality")
 # reset data
 edited_data = data.copy()
 
-# keep only observations per unique foreign employee
-edited_data.drop_duplicates(subset=['id'], inplace=True)
+# # keep only observations per unique foreign employee
+# edited_data.drop_duplicates(subset=['id'], inplace=True)
 
 nationalities = edited_data[['austria','belgium','benin','britain','canada','china','denmark','finland','france','germany','hawaii','hungary','india','ireland','italy','mauritius','netherlands','norway','philippines','portugal','russia','scotland','sweden','switzerland','usa']].sum().reset_index()
 nationalities = nationalities.rename(columns={0:'count'}).sort_values('count')
+nationalities['log_count'] = np.log(nationalities['count']+1)
 chart_nationalities = alt.Chart(nationalities).mark_bar().encode(
-    alt.X("count", axis = alt.Axis(title='# Employment Spells')),
+    alt.X("log_count", axis = alt.Axis(title='Log(# Employment Spells + 1)')),
     y = alt.Y("index", axis=alt.Axis(title='Nationality'), sort='-x'),
     tooltip=["count"],
 )
-st.altair_chart(chart_nationalities.properties(width=700, height=410))
+st.altair_chart(chart_nationalities.properties(width=700, height=500))
 
 
 # enter some blank space
@@ -239,7 +209,7 @@ chart_wages = alt.Chart(edited_data[(edited_data['Employment Duration (Days)'] >
     y=alt.Y('count()', axis=alt.Axis(title='# Employment Spells')),
     tooltip=['count()'],
 ).interactive()
-st.altair_chart(chart_wages.properties(width=700, height=410))
+st.altair_chart(chart_wages.properties(width=700, height=500))
 
 # compute corresponding average and variance of wages
 average_employment_duration = np.average(edited_data.loc[(edited_data['Employment Duration (Days)'] > 0) & (edited_data['Employment Duration (Days)'] < 5000),'Employment Duration (Days)'])
@@ -252,34 +222,31 @@ st.markdown("Standard error: {:.2f}".format(np.sqrt(variance_employment_duration
 st.write("#")
 
 
-# # (6) Distribution of Wages among oyatoi -----
-# # reset data (include duplicates by 'id' again)
-# edited_data = data.copy()
-# # rename columns in edited_data
-# edited_data = edited_data.rename(columns = {'time_employed_converted':'Employment Duration (Days)', 'avg_wage':'Wage (Yen)'})
-# # drop obserations with NAs for employment duration
-# edited_data.dropna(subset=['Wage (Yen)'], inplace = True)
-#
-# # Create histogram showing the distribution of wages among hired foreigners
-# st.subheader("Distribution of Wages among Hired Foreigners")
-# edited_data['Log Wage (Yen)'] = np.log(edited_data['Wage (Yen)'])
-# # Altair chart looks better than st.bar_chart
-# chart_wages = alt.Chart(edited_data[(edited_data['Wage (Yen)'] > 0) & (edited_data['Wage (Yen)'] < 2500)]).mark_bar().encode(
-#     alt.X("Wage (Yen)", bin=alt.Bin(maxbins=25), axis = alt.Axis(title='Wage (Yen)')),
-#     y=alt.Y('count()', axis=alt.Axis(title='# Employment Spells')),
-#     tooltip=['count()'],
-# ) # .interactive()
-# st.altair_chart(chart_wages.properties(width=700, height=410))
-#
-# # compute corresponding average and variance of wages
-# average_wage = np.average(edited_data.loc[edited_data['Wage (Yen)'] > 0,'Wage (Yen)'])
-# variance_wage = np.var(edited_data.loc[edited_data['Wage (Yen)'] > 0,'Wage (Yen)'])
-# st.markdown("Average Wage: {:.2f} Yen".format(average_wage))
-# st.markdown("Standard error: {:.2f}".format(np.sqrt(variance_wage)))
-#
-#
-# # enter some blank space
-# st.write("#")
+# (6) Distribution of Wages among oyatoi -----
+
+# drop obserations with NAs for employment duration
+edited_data.dropna(subset=['Wage (Yen)'], inplace = True)
+
+# Create histogram showing the distribution of wages among hired foreigners
+st.subheader("Distribution of Wages among Hired Foreigners")
+edited_data['Log Wage (Yen)'] = np.log(edited_data['Wage (Yen)'])
+# Altair chart looks better than st.bar_chart
+chart_wages = alt.Chart(edited_data[(edited_data['Wage (Yen)'] > 0) & (edited_data['Wage (Yen)'] < 2500)]).mark_bar().encode(
+    alt.X("Wage (Yen)", bin=alt.Bin(maxbins=25), axis = alt.Axis(title='Wage (Yen)')),
+    y=alt.Y('count()', axis=alt.Axis(title='# Employment Spells')),
+    tooltip=['count()'],
+) # .interactive()
+st.altair_chart(chart_wages.properties(width=700, height=500))
+
+# compute corresponding average and variance of wages
+average_wage = np.average(edited_data.loc[edited_data['Wage (Yen)'] > 0,'Wage (Yen)'])
+variance_wage = np.var(edited_data.loc[edited_data['Wage (Yen)'] > 0,'Wage (Yen)'])
+st.markdown("Average Wage: {:.2f} Yen".format(average_wage))
+st.markdown("Standard error: {:.2f}".format(np.sqrt(variance_wage)))
+
+
+# enter some blank space
+st.write("#")
 
 
 # # (7) Raw Data -----

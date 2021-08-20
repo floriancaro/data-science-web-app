@@ -14,9 +14,13 @@ client = boto3.client('s3', aws_access_key_id=aws_id,
 bucket_name = 'hired-foreigners'
 
 # object_key = 'df_oyatoi_simplified.csv'
-object_key = '2021-08-19_publish_wo_katakana.csv'
+object_key = '2021-08-20_publish_wo_katakana.csv'
 csv_obj = client.get_object(Bucket=bucket_name, Key=object_key)
 body = csv_obj['Body']
 csv_string = body.read().decode('utf-8')
+
+json_key = "oyatoi_geojson_simplified.json"
+json_content = client.get_object(Bucket=bucket_name, Key=json_key)['Body'].read().decode('utf-8')
+# json_content = json.loads(file_content)
 
 # df = pd.read_csv(StringIO(csv_string))
