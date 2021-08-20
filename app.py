@@ -33,7 +33,7 @@ st.markdown("""This application is a Streamlit dashboard that can be used to ana
 The analysis is based on data from the 『資料御雇外国人』 by the Centre for East Asian Cultural Studies for UNESCO.""")
 
 # import prepared raw data from aws_client.py
-from aws_client import csv_string
+from aws_client import csv_string, json_content
 
 # tell Streamlit to keep the data in a cache so that it does not have to rerun the whole code when something changes
 @st.cache(persist=True)
@@ -69,8 +69,6 @@ st.write("#")
 
 
 # (1) Map showing the regional distribution of oyatoi ------
-# import prepared raw data from aws_client.py
-from aws_client import json_content
 oyatoi_json = gpd.read_file(json_content)
 # st.write(oyatoi_json.head())
 

@@ -2,6 +2,7 @@ import os
 import boto3
 import sys
 import streamlit as st
+import json
 
 # get your credentials from environment variables -----
 aws_id = st.secrets['AWS_KEY']
