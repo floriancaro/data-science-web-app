@@ -32,7 +32,7 @@ st.markdown("""This application is a Streamlit dashboard that can be used to ana
 
 The analysis is based on data from the 『資料御雇外国人』 by the Centre for East Asian Cultural Studies for UNESCO.
 
-The raw data can be downloaded [here](https://www.hired-foreigners.com/data/oyatoi.csv) and the documentation [here](https://www.hired-foreigners.com/pdf/Oyatoi_Documentation.pdf).""")
+The raw data can be downloaded [here](https://floriancaro.com/data/oyatoi.csv) and the documentation [here](https://floriancaro.com/pdf/Oyatoi_Documentation.pdf).""")
 
 
 # import prepared raw data from aws_client.py
