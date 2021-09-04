@@ -32,15 +32,6 @@ st.markdown("""This application is a Streamlit dashboard that can be used to ana
 
 The analysis is based on data from the 『資料御雇外国人』 by the Centre for East Asian Cultural Studies for UNESCO.""")
 
-# .csv file and pdf documentation
-components.html(
-    """
-    <div>
-        <p>The raw data can be downloaded <a href="https://www.hired-foreigners.com/data/oyatoi.csv">here</a> and the documentation <a href="https://www.hired-foreigners.com/pdf/Oyatoi_Documentation.pdf">here</a></p>
-    </div>
-    """,
-)
-
 
 # import prepared raw data from aws_client.py
 from aws_client import csv_string, json_content
@@ -267,11 +258,24 @@ st.write("#")
 # st.write("#")
 
 
+# # .csv file and pdf documentation
+# components.html(
+#     """
+#     <div>
+#         <p style="color: white; text-align: center">The raw data can be downloaded <a href="https://www.hired-foreigners.com/data/oyatoi.csv">here</a> and the documentation <a href="https://www.hired-foreigners.com/pdf/Oyatoi_Documentation.pdf">here</a></p>
+#     </div>
+#     """,
+# )
+
 # Footer
 components.html(
     """
+    <div>
+         <p style="color: white; text-align: left; font-size:1em;">The raw data can be downloaded <a href="https://www.hired-foreigners.com/data/oyatoi.csv">here</a> and the documentation <a href="https://www.hired-foreigners.com/pdf/Oyatoi_Documentation.pdf">here</a></p>
+    </div>
+    </br>
     <div style="position: fixed; bottom: 0px;">
-        <p style="color:white; font-size:1em">Created by <a href="https://github.com/floriancaro/" target="_blank">Florian Caro</a>.</p>
+        <p style="color:white; font-size:1em;">Created by <a href="https://floriancaro.com" target="_blank">Florian Caro</a>.</p>
     </div>
     """,
 )
