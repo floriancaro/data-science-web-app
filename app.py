@@ -30,7 +30,7 @@ dirname = os.path.dirname(__file__)
 st.title("Hired Foreigners in Meiji Japan")
 st.markdown("""This application is a Streamlit dashboard that can be used to analyze the presence of hired foreigners in Japan during the Meiji era (1868-1912).
 
-The analysis is based on data from the 『資料御雇外国人』 by the Centre for East Asian Cultural Studies for UNESCO digitized and transformed into a dataset by [FLorian Caro](https://floriancaro.com).
+The analysis is based on data from the 『資料御雇外国人』 by the Centre for East Asian Cultural Studies for UNESCO digitized and transformed into a dataset by [Florian Caro](https://floriancaro.com).
 
 The raw data can be downloaded [here](https://floriancaro.com/data/oyatoi.csv) and the documentation [here](https://floriancaro.com/pdf/Oyatoi_Documentation.pdf).""")
 
