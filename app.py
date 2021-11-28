@@ -34,7 +34,7 @@ The analysis is based on data from the 『資料御雇外国人』 by the Centre
 
 The raw data can be downloaded [here](https://floriancaro.com/data/oyatoi.csv) and the documentation [here](https://floriancaro.com/pdf/Oyatoi_Documentation.pdf).
 
-Note: Unfortunately, the map visulization below does not work in Safari browsers at the moment.""")
+(_Note: Unfortunately, the map visulization below does not work in Safari browsers at the moment._)""")
 
 # enter some blank space
 st.write("#")
