@@ -32,8 +32,12 @@ st.markdown("""This application is a Streamlit dashboard that can be used to ana
 
 The analysis is based on data from the 『資料御雇外国人』 by the Centre for East Asian Cultural Studies for UNESCO digitized and transformed into a dataset by [Florian Caro](https://floriancaro.com).
 
-The raw data can be downloaded [here](https://floriancaro.com/data/oyatoi.csv) and the documentation [here](https://floriancaro.com/pdf/Oyatoi_Documentation.pdf).""")
+The raw data can be downloaded [here](https://floriancaro.com/data/oyatoi.csv) and the documentation [here](https://floriancaro.com/pdf/Oyatoi_Documentation.pdf).
 
+Note: Unfortunately, the map visulization below does not work in Safari browsers at the moment.""")
+
+# enter some blank space
+st.write("#")
 
 # import prepared raw data from aws_client.py
 from aws_client import csv_string, json_content
@@ -86,7 +90,7 @@ else:
     oyatoi_json['selection'] = oyatoi_json['nr_oyatoi']
     oyatoi_json['display'] = np.log(oyatoi_json['nr_oyatoi'] +1) ** 2.5
 
-INITIAL_VIEW_STATE = pdk.ViewState(latitude=35.554, longitude=135.73, zoom=4.5, max_zoom=7, pitch=40, bearing=0)
+INITIAL_VIEW_STATE = pdk.ViewState(latitude=35.554, longitude=135.73, zoom=4.5, max_zoom=7, min_zoom=4, pitch=40, bearing=0)
 
 geojson = pdk.Layer(
     "GeoJsonLayer",
